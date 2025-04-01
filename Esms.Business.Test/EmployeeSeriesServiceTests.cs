@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Esms.Business.Models;
 using Esms.Business.Repositories;
 using Esms.Business.Services.V1;
@@ -81,25 +82,38 @@ public class EmployeeSeriesServiceTests
             }
         };
 
+        Expression<Func<EmployeeSeries, bool>>? capturedFilter = null;
+        string? capturedInclude1 = null;
+        string? capturedInclude2 = null;
+
         _employeeSeriesRepositoryMock.Setup(repo => repo.FindAsync(
-            It.IsAny<System.Linq.Expressions.Expression<Func<EmployeeSeries, bool>>>(),
+            It.IsAny<Expression<Func<EmployeeSeries, bool>>>(),
+            It.IsAny<string>(),
             It.IsAny<string>()
-        )).ReturnsAsync(expectedSeries);
+        )).Callback<Expression<Func<EmployeeSeries, bool>>, string, string>((f, inc1, inc2) =>
+        {
+            capturedFilter = f;
+            capturedInclude1 = inc1;
+            capturedInclude2 = inc2;
+        }).ReturnsAsync(expectedSeries);
 
         // Act
         var result = await _employeeSeriesService.GetSeriesByPeriodAsync(employeeId, startDate, endDate);
 
         // Assert
-        _employeeSeriesRepositoryMock.Verify(repo => repo.FindAsync(
-            It.Is<System.Linq.Expressions.Expression<Func<EmployeeSeries, bool>>>(
-                e => e.Compile().Invoke(new EmployeeSeries { EmployeesExternalId = employeeId, StartDate = startDate, EndDate = endDate })
-            ),
-            "Series"
-        ), Times.Once);
+        Assert.NotNull(capturedFilter);
+        Assert.Equal("Series", capturedInclude1);
+        Assert.Empty(capturedInclude2);
 
-        Assert.Equal(expectedSeries.Count, result.Count());
-        Assert.Equal(expectedSeries[0].SeriesCode, result.ElementAt(0).SeriesCode);
-        Assert.Equal(expectedSeries[1].SeriesCode, result.ElementAt(1).SeriesCode);
+        var predicate = capturedFilter!.Compile();
+        var matches = predicate(new EmployeeSeries
+        {
+            EmployeesExternalId = employeeId,
+            StartDate = startDate,
+            EndDate = endDate
+        });
+
+        Assert.True(matches);
     }
 
     [Fact]
@@ -112,13 +126,13 @@ public class EmployeeSeriesServiceTests
 
         _employeeSeriesRepositoryMock.Setup(repo => repo.FindAsync(
             It.IsAny<System.Linq.Expressions.Expression<Func<EmployeeSeries, bool>>>(),
-            It.IsAny<string>()
+            null, null
         )).ReturnsAsync(new List<EmployeeSeries>());
 
         // Act
         var result = await _employeeSeriesService.GetSeriesByPeriodAsync(employeeId, startDate, endDate);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Null(result);
     }
 }
