@@ -1,0 +1,103 @@
+﻿@page "/address"
+@using Esms.Business.Models
+@using Esms.Business.Services
+@rendermode InteractiveServer
+@inject IEmployeesAddressesService EmployeesAddressesService
+
+<PageTitle>Employee Addresses</PageTitle>
+
+<h1>Employee Addresses</h1>
+
+<p>Select a city to filter employee addresses:</p>
+
+<select class="form-select" @bind-value="SelectedCity" @bind-value:event="oninput" @onchange="CitySelectionChanged">
+    <option value="">-- Select City --</option>
+    @foreach (var city in Cities)
+    {
+        <option value="@city">@city</option>
+    }
+</select>
+
+@if (employeeAddresses == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!employeeAddresses.Any())
+{
+    <p><em>No addresses found for the selected city.</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Employee ID</th>
+                <th>Employee Name</th>
+                <th>Street</th>
+                <th>City</th>
+                <th>Zip Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var address in employeeAddresses)
+            {
+                <tr>
+                    <td>@address.EmployeeExternalId</td>
+                    <td>@address.EmployeeName</td>
+                    <td>@address.Street</td>
+                    <td>@address.City</td>
+                    <td>@address.ZipCode</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<EmployeeAddressVM>? employeeAddresses;
+    private string SelectedCity { get; set; } = string.Empty;
+    private List<string> Cities { get; set; } = new List<string>();
+
+
+    public async Task CitySelectionChanged(ChangeEventArgs e)
+    {
+        // This will be called when the dropdown selection changes
+        await LoadEmployeeAddresses();
+    }
+
+    private async Task LoadEmployeeAddresses()
+    {
+        if (!string.IsNullOrEmpty(SelectedCity))
+        {
+            var eas = await EmployeesAddressesService.GetEmployeeAddressesByCityAsync(SelectedCity);
+            employeeAddresses = eas.Select(ea => EmployeeAddressVM.MapTo(ea)).ToList();
+        }
+        else
+        {
+            employeeAddresses = null; // Empty list when no city is selected
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Cities = (await EmployeesAddressesService.GetAllCitiesAsync()).ToList();
+    }
+
+    public class EmployeeAddressVM
+    {
+        public int EmployeeExternalId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string Street { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string ZipCode { get; set; } = string.Empty;
+
+        public static EmployeeAddressVM MapTo(EmployeesAddresses employeesAddresses) => new EmployeeAddressVM()
+            {
+                EmployeeExternalId = employeesAddresses.EmployeesExternalId,
+                EmployeeName = employeesAddresses.Employee.FullName(),
+                Street = employeesAddresses.Address.Street,
+                City = employeesAddresses.Address.City,
+                ZipCode = employeesAddresses.Address.ZipCode,
+            };
+    }
+}

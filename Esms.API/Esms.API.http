@@ -1,0 +1,6 @@
+@Esms.API_HostAddress = http://localhost:5127
+
+GET {{Esms.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

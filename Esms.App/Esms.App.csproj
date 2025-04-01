@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Esms.Business\Esms.Business.csproj" />
+    <ProjectReference Include="..\Esms.DependencyInjection\Esms.DependencyInjection.csproj" />
+  </ItemGroup>
+
+</Project>
