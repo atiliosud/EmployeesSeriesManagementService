@@ -4,7 +4,7 @@ A **full-stack C# and Blazor application** to manage employee addresses and thei
 
 ---
 
-### 🔍 Project Goals
+### Project Goals
 
 This project was developed to showcase:
 
@@ -18,7 +18,7 @@ This project was developed to showcase:
 
 ---
 
-### 🧱 Architecture
+### Architecture
 
 The project is structured into multiple logical layers:
 
@@ -31,7 +31,7 @@ The project is structured into multiple logical layers:
 
 ---
 
-### ✅ Features Implemented
+### Features Implemented
 
 - Get addresses of a specific employee
 - Get personal address of all employees where the **work city is 'Brussels'**
@@ -46,7 +46,7 @@ The project is structured into multiple logical layers:
 
 ---
 
-### ⚙️ Technologies Used
+### Technologies Used
 
 - ASP.NET Core 7.0
 - Blazor WebAssembly
@@ -59,7 +59,7 @@ The project is structured into multiple logical layers:
 
 ---
 
-### 🔐 Security
+### Security
 
 The API is secured using:
 
@@ -71,7 +71,7 @@ The API is secured using:
 
 ---
 
-### 🥮 Testing
+### Testing
 
 - `Esms.Business.Test` includes unit tests for `EmployeeSeriesService`
 - Mocked repository patterns for business-layer isolation
